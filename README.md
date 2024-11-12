@@ -8,7 +8,7 @@ Project Structure:
 ├── insfraestructure
 │   ├── docker-compose.yml
 │   ├── nexus
-│   |    └── Dockerfile
+│   |   └── Dockerfile
 │   └── jenkins
 │       └── Dockerfile
 ├── apps
@@ -40,7 +40,7 @@ Create and install local nexus server.
 
 ### Jenkins:
 
-Create and install jenkins local server.
+Create and install local jenkins server.
 
 1. Create volume for persistent data.
 
