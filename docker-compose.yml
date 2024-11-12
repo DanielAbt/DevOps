@@ -1,0 +1,30 @@
+services:
+  nexus:
+    build: ./infraestructure/nexus
+    container_name: "nexus3"
+    volumes:
+      - nexus-data:/nexus-data
+    ports:
+      - "8081:8081"
+      - "8082:8082"
+      - "8083:8083"
+    image: "nexus3-local:1.0.0"
+
+  jenkins:
+    build: ./infraestructure/jenkins
+    container_name: "jenkins"
+    ports:
+      - "8080:8080"
+    volumes:
+      - jenkins-data:/var/jenkins_home
+    image: "jenkins-local:1.0.0"
+
+  ssh-agent:
+    container_name: "jenkins-agent"
+    image: jenkins/ssh-agent
+
+volumes:
+  nexus-data:
+    external: true
+  jenkins-data:
+    external: true
