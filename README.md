@@ -1,10 +1,27 @@
 # DevOps Training
 
-Local Infraestructure...
+
+
+Project Structure:
+
+```plaintext
+├── insfraestructure
+│   ├── docker-compose.yml
+│   └── nexus
+│       └── Dockerfile
+├── apps
+│   └── app1
+└── README.md
+
+```
+
+### Apps:
+
+### Infraestructure:
 
 The Docker Compose file defines a local environment for DevOps practices
 
-### Nexus:
+#### Nexus:
 
 Create and install local nexus server.
 
