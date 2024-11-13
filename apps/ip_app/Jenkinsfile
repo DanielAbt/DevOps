@@ -7,29 +7,23 @@ pipeline {
 
     environment {
         IMAGE_NAME = "what-is-my-ip"
-        DOCKER_REGISTRY = "localhost:8083"
-        DOCKER_REPO = "docker-local"
+        DOCKER_REGISTRY = "http://localhost:8083/repository/docker-local/"
+        DOCKER_CREDENTIALS = credentials('nexus-local')
         IMAGE_VERSION = "1.0.0"
     }
 
     stages {
-        stage ("build image") {
+        stage('Login to Nexus Docker Registry') {
             steps {
-                sh "docker build -f apps/ip_app/Dockerfile -t ${IMAGE_NAME} apps/ip_app/"
+                script {
+                    sh 'docker login -u $DOCKER_CREDENTIALS_USR -p $DOCKER_CREDENTIALS_PSW $DOCKER_REGISTRY'
+                }
             }
         }
 
-        stage ("Login in local registry") {
+        stage ("build image") {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'nexus-local', 
-                                                 usernameVariable: 'NEXUS_USER', 
-                                                 passwordVariable: 'NEXUS_PASS')]) {
-                    script {
-                        sh """
-                            curl -u $NEXUS_USER:$NEXUS_PASS -X GET "$DOCKER_REGISTRY/service/rest/v1/repositories/$DOCKER_REPO"
-                        """
-                    }
-                }
+                sh "docker build -f apps/ip_app/Dockerfile -t ${IMAGE_NAME} apps/ip_app/"
             }
         }
     }
