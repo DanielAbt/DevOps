@@ -13,10 +13,15 @@ services:
   jenkins:
     build: ./infraestructure/jenkins
     container_name: "jenkins"
+    restart: always
+    privileged: true
+    user: root
     ports:
-      - "8080:8080"
+      - 8080:8080
+      - 50000:50000
     volumes:
       - jenkins-data:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
     image: "jenkins-local:1.0.0"
 
   ssh-agent:

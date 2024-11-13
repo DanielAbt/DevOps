@@ -1,3 +1,8 @@
-FROM jenkins/jenkins:lts-jdk17
+FROM jenkins/jenkins:lts
 
-RUN jenkins-plugin-cli --plugins pipeline-model-definition github-branch-source:1.8
+USER root
+RUN apt-get update && apt-get install -y \
+  docker.io \
+  && rm -rf /var/lib/apt/lists/*
+
+USER jenkins
