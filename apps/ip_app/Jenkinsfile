@@ -37,7 +37,7 @@ pipeline {
         always {
             // Clean images
             sh '''
-            docker rmi ${IMAGE_NAME}:${IMAGE_VERSION} --force || true
+            docker rmi ${IMAGE_NAME} --force || true
             docker rmi ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_VERSION} --force || true
             '''
         }
