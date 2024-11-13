@@ -7,7 +7,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = "what-is-my-local-ip"
-        DOCKER_REGISTRY = "http://localhost:8083/repository/docker-local"
+        DOCKER_REGISTRY = "localhost:8083"
         DOCKER_CREDENTIALS = credentials('nexus-local')
         IMAGE_VERSION = "1.0.0"
     }
