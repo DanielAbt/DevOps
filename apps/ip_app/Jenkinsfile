@@ -15,7 +15,7 @@ pipeline {
     stages {
         stage ("build image") {
             steps {
-                sh "docker build -f apps/ip_app/ -t ${IMAGE_NAME} apps/ip_app/"
+                sh "docker build -f apps/ip_app/Dockerfile -t ${IMAGE_NAME} apps/ip_app/"
             }
         }
 
