@@ -6,7 +6,7 @@ pipeline {
     }
 
     environment {
-        IMAGE_NAME = "what-is-my-ip"
+        IMAGE_NAME = "what-is-my-local-ip"
         DOCKER_REGISTRY = "http://localhost:8083/repository/docker-local/"
         DOCKER_CREDENTIALS = credentials('nexus-local')
         IMAGE_VERSION = "1.0.0"
@@ -26,5 +26,20 @@ pipeline {
                 sh "docker build -f apps/ip_app/Dockerfile -t ${IMAGE_NAME} apps/ip_app/"
             }
         }
+        stage ("Deply image") {
+            steps {
+                sh "docker tag ${IMAGE_NAME} ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_VERSION}"
+                sh "docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_VERSION}"
+            }
+        }
     }
+    post {
+        always {
+            // Clean images
+            sh '''
+            docker rmi ${IMAGE_NAME}:${IMAGE_VERSION} --force || true
+            docker rmi ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_VERSION} --force || true
+            '''
+        }
+  }
 }
