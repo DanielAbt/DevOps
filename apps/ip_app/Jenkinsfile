@@ -9,37 +9,82 @@ pipeline {
         IMAGE_NAME = "what-is-my-local-ip"
         DOCKER_REGISTRY = "localhost:8083"
         DOCKER_CREDENTIALS = credentials('nexus-local')
-        IMAGE_VERSION = "1.0.0"
+        IMAGE_VERSION_FILE = "apps/ip_app/version.txt"
+        GIT_REPO = 'https://github.com/DanielAbt/DevOps.git'
+        GIT_CREDENTIALS_ID = 'git-personal' 
+        NEW_VERSION = ''
     }
 
     stages {
         stage('Login to Nexus Docker Registry') {
             steps {
                 script {
-                    sh 'docker login -u $DOCKER_CREDENTIALS_USR -p $DOCKER_CREDENTIALS_PSW $DOCKER_REGISTRY'
+                    withCredentials([usernamePassword(credentialsId: 'DOCKER_CREDENTIALS_ID', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh """
+                            echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin localhost:8083
+                        """
+                    }
+                }
+            }
+        }
+        
+        stage("Get version") {
+            steps {
+                script {
+                    NEW_VERSION = sh(
+                        script: 'python3 apps/ip_app/increment_patch.py',
+                        returnStdout: true
+                    ).trim()
                 }
             }
         }
 
-        stage ("build image") {
+        stage ("Build image") {
             steps {
-                sh "docker build --no-cache -f apps/ip_app/Dockerfile -t ${IMAGE_NAME} apps/ip_app/"
+                script {
+                    sh "docker build --no-cache -f apps/ip_app/Dockerfile -t ${IMAGE_NAME}:${NEW_VERSION} apps/ip_app/"
+                }
             }
         }
-        stage ("Deply image") {
+        
+        stage ("Deploy image") {
             steps {
-                sh "docker tag ${IMAGE_NAME} ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_VERSION}"
-                sh "docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_VERSION}"
+                script {
+                    sh "docker tag ${IMAGE_NAME}:${NEW_VERSION} ${DOCKER_REGISTRY}/${IMAGE_NAME}:${NEW_VERSION}"
+                    sh "docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${NEW_VERSION}"
+                }
             }
         }
     }
+
     post {
         always {
-            // Clean images
-            sh '''
-            docker rmi ${IMAGE_NAME} --force || true
-            docker rmi ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_VERSION} --force || true
-            '''
+            echo 'Cleaning up Docker resources...'
+            sh 'docker container prune -f'
+            sh 'docker image prune -a -f'
+            sh 'docker volume prune -f'
+            
+            // Clean workspace
+            deleteDir()
         }
-  }
+        
+        success {
+            script {
+                withCredentials([usernamePassword(credentialsId: GIT_CREDENTIALS_ID, passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                    sh "git clone ${GIT_REPO} DevOps"
+                    dir('DevOps') {
+                        sh "git fetch origin development"
+                        sh "git checkout development || git checkout -b development"
+                        sh "git pull origin development --rebase"
+                        sh "git config user.email 'abtdaniel@gmail.com'"
+                        sh "git config user.name '${GIT_USERNAME}'"
+                        sh "echo '${NEW_VERSION}' > ${IMAGE_VERSION_FILE}"
+                        sh "git add ${IMAGE_VERSION_FILE}"
+                        sh "git commit -m 'Incremented version to ${NEW_VERSION}'"
+                        sh "git push https://${GIT_USERNAME}:${GIT_PASSWORD}@${GIT_REPO.replace('https://', '')} development"
+                    }
+                }
+            }
+        }
+    }
 }
