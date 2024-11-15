@@ -12,6 +12,7 @@ pipeline {
         IMAGE_VERSION_FILE = "apps/ip_app/version.txt"
         GIT_REPO = 'https://github.com/DanielAbt/DevOps.git'
         GIT_CREDENTIALS_ID = 'git-personal' 
+        DOCKER_CREDENTIALS_ID = 'nexus-local'
         NEW_VERSION = ''
     }
 
