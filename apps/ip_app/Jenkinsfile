@@ -11,7 +11,8 @@ pipeline {
         DOCKER_CREDENTIALS = credentials('nexus-local')
         IMAGE_VERSION_FILE = "apps/ip_app/version.txt"
         GIT_REPO = 'https://github.com/DanielAbt/DevOps.git'
-        GIT_CREDENTIALS_ID = 'git-personal' 
+        GIT_CREDENTIALS_ID = 'git-personal'
+        DOCKER_CREDENTIALS_ID = 'nexus-local'
         NEW_VERSION = ''
     }
 
@@ -19,9 +20,9 @@ pipeline {
         stage('Login to Nexus Docker Registry') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'DOCKER_CREDENTIALS_ID', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                         sh """
-                            echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin localhost:8083
+                            echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin ${DOCKER_REGISTRY}
                         """
                     }
                 }
