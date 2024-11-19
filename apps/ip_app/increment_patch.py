@@ -9,7 +9,7 @@ def increment_patch(file_path="apps/ip_app/version.txt"):
     patch += 1
     new_version = f"{major}.{minor}.{patch}"
 
-    print(f"Updated version: {new_version}")
+    print(new_version)
     return new_version
 
 if __name__ == "__main__":
