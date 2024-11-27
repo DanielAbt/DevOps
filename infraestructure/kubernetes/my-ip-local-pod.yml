@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-ip-app
+  labels:
+    name: my-ip-app
+spec:
+  containers:
+  - name: my-ip-local-app
+    image: what-is-my-local-ip:1.0.8
+    resources:
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+    ports:
+      - containerPort: 5000

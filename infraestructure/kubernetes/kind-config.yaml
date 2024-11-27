@@ -1,0 +1,10 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      - containerPort: 8083 # Nexus port
+        hostPort: 8083
+        protocol: TCP
+    extraHosts:
+      - "localhost:127.0.0.1"
