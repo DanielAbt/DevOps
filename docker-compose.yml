@@ -24,19 +24,28 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     image: "jenkins-local:1.0.0"
 
-  local-stack:
-    build: ./infraestructure/localstack
-    container_name: "${LOCALSTACK_DOCKER_NAME:-localstack-main}"
+  localstack:
+    container_name: localstack
+    image: localstack/localstack:latest
+    read_only: false  # required to write to /tmp
     ports:
-      - "127.0.0.1:4566:4566"            # LocalStack Gateway
-      - "127.0.0.1:4510-4559:4510-4559"  # external services port range
+      - "4566:4566"
+      - "4571:4571"
+      - "8082:8082"
     environment:
-      # LocalStack configuration: https://docs.localstack.cloud/references/configuration/
-      - DEBUG=${DEBUG:-0}
+      - PROVIDER_OVERRIDE_STEPFUNCTIONS=v2
+      - USE_LIGHT_IMAGE=0
+      - DEBUG=1
+      - PORT_WEB_UI=8082
+      - LAMBDA_EXECUTOR=local
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - HOST_TMP_FOLDER=${TMPDIR}
+      - START_WEB=1
     volumes:
-      - "./infraestructure/localstack/volume:/var/lib/localstack"
-      - "/var/run/docker.sock:/var/run/docker.sock"
-    image: "localstack:3.8"
+      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"  # required for some AWS services like AWS Lambda
+    security_opt:
+      - no-new-privileges:true
 
 volumes:
   nexus-data:

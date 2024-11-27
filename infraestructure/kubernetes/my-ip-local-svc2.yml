@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-ip-app2
+  labels:
+    app: myip2
+spec:
+  selector:
+    matchLabels:
+      app: myip2
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: myip2
+    spec:
+      containers:
+      - name: myip2
+        image: danielabt/what-is-my-ip-local:1.0.8
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 5000
